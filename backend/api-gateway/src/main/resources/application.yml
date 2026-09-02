@@ -1,0 +1,65 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+  cloud:
+    gateway:
+      routes:
+        # 1. Search Service Route (Trip Catalog)
+        - id: search-service-route
+          uri: ${SEARCH_SERVICE_URI:http://localhost:8082}
+          predicates:
+            - Path=/api/v1/trips/**
+
+        # 2. Booking Service - Hold Seat Route with Rate Limiter (5 req/min)
+        - id: booking-hold-route
+          uri: ${BOOKING_SERVICE_URI:http://localhost:8081}
+          predicates:
+            - Path=/api/v1/bookings/hold
+            - Method=POST
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 5
+                redis-rate-limiter.burstCapacity: 5
+                key-resolver: "#{@userKeyResolver}"
+
+        # 3. Booking Service General Routes
+        - id: booking-service-route
+          uri: ${BOOKING_SERVICE_URI:http://localhost:8081}
+          predicates:
+            - Path=/api/v1/bookings/**
+
+        # 4. Payment Service Route
+        - id: payment-service-route
+          uri: ${PAYMENT_SERVICE_URI:http://localhost:8083}
+          predicates:
+            - Path=/api/v1/payments/**
+
+        # 5. Ticket Service Route (PDF Download & Metadata)
+        - id: ticket-service-route
+          uri: ${TICKET_SERVICE_URI:http://localhost:8084}
+          predicates:
+            - Path=/api/v1/tickets/**
+
+        # 6. WebSocket Proxy Route
+        - id: websocket-route
+          uri: ${WEBSOCKET_SERVICE_URI:ws://localhost:8081}
+          predicates:
+            - Path=/ws/**
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,metrics
+  prometheus:
+    metrics:
+      export:
+        enabled: true

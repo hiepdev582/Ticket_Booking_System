@@ -65,10 +65,10 @@ services:
       KAFKA_LISTENERS: "PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:29093,PLAINTEXT_HOST://0.0.0.0:29092"
       KAFKA_INTER_BROKER_LISTENER_NAME: "PLAINTEXT"
       KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
-      KAFKA_LOG_DIRS: "/tmp/kraft-combined-logs"
+      KAFKA_LOG_DIRS: "/var/lib/kafka/data"
       CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
     volumes:
-      - kafka_data:/tmp/kraft-combined-logs
+      - kafka_data:/var/lib/kafka/data
     healthcheck:
       test:
         [
@@ -175,7 +175,7 @@ services:
     ports:
       - "9090:9090"
     volumes:
-      - ./deployments/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - prometheus_data:/prometheus
     networks:
       - ticket_network
@@ -196,6 +196,150 @@ services:
       - prometheus
     networks:
       - ticket_network
+
+  # =========================================================================
+  # 8. APPLICATION MICROSERVICES & FRONTEND
+  # =========================================================================
+  search-service:
+    build:
+      context: ../backend
+      dockerfile: search-service/Dockerfile
+    container_name: ticket_search_service
+    restart: unless-stopped
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      REDIS_HOST: redis
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    networks:
+      - ticket_network
+
+  booking-service:
+    build:
+      context: ../backend
+      dockerfile: booking-service/Dockerfile
+    container_name: ticket_booking_service
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      REDIS_HOST: redis
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    networks:
+      - ticket_network
+
+  payment-service:
+    build:
+      context: ../backend
+      dockerfile: payment-service/Dockerfile
+    container_name: ticket_payment_service
+    restart: unless-stopped
+    ports:
+      - "8083:8083"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      REDIS_HOST: redis
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    networks:
+      - ticket_network
+
+  ticket-service:
+    build:
+      context: ../backend
+      dockerfile: ticket-service/Dockerfile
+    container_name: ticket_ticket_service
+    restart: unless-stopped
+    ports:
+      - "8084:8084"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      REDIS_HOST: redis
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      MINIO_ENDPOINT: http://minio:9000
+      MINIO_ACCESS_KEY: ${MINIO_ROOT_USER}
+      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    networks:
+      - ticket_network
+
+  api-gateway:
+    build:
+      context: ../backend
+      dockerfile: api-gateway/Dockerfile
+    container_name: ticket_api_gateway
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      REDIS_HOST: redis
+      SEARCH_SERVICE_URI: http://search-service:8082
+      BOOKING_SERVICE_URI: http://booking-service:8081
+      PAYMENT_SERVICE_URI: http://payment-service:8083
+      TICKET_SERVICE_URI: http://ticket-service:8084
+      WEBSOCKET_SERVICE_URI: ws://booking-service:8081
+    depends_on:
+      - search-service
+      - booking-service
+      - payment-service
+      - ticket-service
+    networks:
+      - ticket_network
+
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    container_name: ticket_frontend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      NUXT_PUBLIC_API_BASE: http://localhost:8080
+      NUXT_PUBLIC_WS_URL: ws://localhost:8080/ws
+    depends_on:
+      - api-gateway
+    networks:
+      - ticket_network
+
 
 # =========================================================================
 # NETWORKS & PERSISTENT VOLUMES

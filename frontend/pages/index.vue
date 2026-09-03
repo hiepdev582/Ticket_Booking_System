@@ -21,12 +21,8 @@
           class="text-3xl sm:text-5xl font-extrabold tracking-tight text-white font-display"
         >
           Đặt vé nhanh chóng, <br />
-          <span class="gradient-text">Giữ chỗ thời gian thực trong 5 phút</span>
+          <span class="gradient-text">Giữ chỗ trong 5 phút</span>
         </h1>
-        <p class="text-slate-400 text-sm sm:text-base leading-relaxed">
-          Tối ưu hóa với Redis Distributed Lock chống trùng ghế tuyệt đối và cập
-          nhật tức thời qua WebSocket.
-        </p>
       </div>
 
       <!-- Search Input Bar -->
@@ -63,8 +59,8 @@
         </div>
         <div class="flex items-end">
           <button
-            :disabled="isLoading"
             class="w-full bg-gradient-to-r from-indigo-600 to-sky-600 hover:from-indigo-500 hover:to-sky-500 text-white font-semibold py-2.5 px-6 rounded-xl transition-all shadow-lg shadow-indigo-600/25 flex items-center justify-center gap-2"
+            :disabled="isLoading"
             @click="fetchTrips"
           >
             <span v-if="isLoading">Đang tìm...</span>
@@ -81,9 +77,6 @@
           <h2 class="text-2xl font-bold text-white font-display">
             Danh Sách Tuyến Đường
           </h2>
-          <p class="text-xs text-slate-400">
-            Dữ liệu được tối ưu Cache-Aside qua Redis
-          </p>
         </div>
         <div
           class="text-xs text-slate-400 bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-lg"
@@ -254,25 +247,6 @@ const fetchTrips = async () => {
   } finally {
     isLoading.value = false;
   }
-};
-
-const formatDateTime = (isoString: string) => {
-  if (!isoString) return "";
-  const date = new Date(isoString);
-  return date.toLocaleString("vi-VN", {
-    hour: "2-digit",
-    minute: "2-digit",
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  });
-};
-
-const formatPrice = (amount: number) => {
-  return new Intl.NumberFormat("vi-VN", {
-    style: "currency",
-    currency: "VND",
-  }).format(amount);
 };
 
 onMounted(() => {

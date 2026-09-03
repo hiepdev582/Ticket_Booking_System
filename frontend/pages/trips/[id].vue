@@ -163,13 +163,13 @@
 
           <!-- Hold Seats Action Button -->
           <button
+            class="w-full py-3 px-6 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-indigo-600 to-sky-600 hover:from-indigo-500 hover:to-sky-500 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-lg shadow-indigo-600/25 flex items-center justify-center gap-2"
             :disabled="
               bookingStore.selectedSeatNumbers.length === 0 || isHolding
             "
-            class="w-full py-3 px-6 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-indigo-600 to-sky-600 hover:from-indigo-500 hover:to-sky-500 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-lg shadow-indigo-600/25 flex items-center justify-center gap-2"
             @click="handleHoldSeats"
           >
-            <span v-if="isHolding">Đang xử lý khóa ghế (Redlock)...</span>
+            <span v-if="isHolding">Đang xử lý giữ chỗ...</span>
             <span v-else>🔒 Giữ Chỗ & Thanh Toán (5 Phút)</span>
           </button>
 
@@ -202,8 +202,6 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
-import { useRoute, useRouter } from "vue-router";
 import { useBookingStore, type Trip, type TripSeat } from "~/stores/booking";
 import { useSeatWebSocket } from "~/composables/useWebSocket";
 
@@ -315,25 +313,6 @@ const handleHoldSeats = async () => {
   } finally {
     isHolding.value = false;
   }
-};
-
-const formatDateTime = (isoString: string) => {
-  if (!isoString) return "";
-  const date = new Date(isoString);
-  return date.toLocaleString("vi-VN", {
-    hour: "2-digit",
-    minute: "2-digit",
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  });
-};
-
-const formatPrice = (amount: number) => {
-  return new Intl.NumberFormat("vi-VN", {
-    style: "currency",
-    currency: "VND",
-  }).format(amount);
 };
 
 onMounted(() => {

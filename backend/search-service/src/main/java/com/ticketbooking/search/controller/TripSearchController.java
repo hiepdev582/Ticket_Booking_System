@@ -21,22 +21,22 @@ public class TripSearchController {
 
     @GetMapping("/search")
     public ResponseEntity<ApiResponse<List<TripDto>>> searchTrips(
-            @RequestParam(required = false) String departure,
-            @RequestParam(required = false) String arrival,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
+            @RequestParam(name = "departure", required = false) String departure,
+            @RequestParam(name = "arrival", required = false) String arrival,
+            @RequestParam(name = "date", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
     ) {
         List<TripDto> trips = tripSearchService.searchTrips(departure, arrival, date);
         return ResponseEntity.ok(ApiResponse.ok("Tìm kiếm chuyến đi thành công", trips));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<TripDto>> getTripDetails(@PathVariable String id) {
+    public ResponseEntity<ApiResponse<TripDto>> getTripDetails(@PathVariable(name = "id") String id) {
         TripDto trip = tripSearchService.getTripById(id);
         return ResponseEntity.ok(ApiResponse.ok("Lấy chi tiết chuyến đi thành công", trip));
     }
 
     @GetMapping("/{id}/seats")
-    public ResponseEntity<ApiResponse<List<TripSeatDto>>> getTripSeats(@PathVariable String id) {
+    public ResponseEntity<ApiResponse<List<TripSeatDto>>> getTripSeats(@PathVariable(name = "id") String id) {
         List<TripSeatDto> seats = tripSearchService.getTripSeats(id);
         return ResponseEntity.ok(ApiResponse.ok("Lấy sơ đồ ghế thành công", seats));
     }

@@ -19,19 +19,19 @@ public class TicketController {
     private final TicketService ticketService;
 
     @GetMapping("/booking/{bookingId}")
-    public ResponseEntity<ApiResponse<List<TicketDto>>> getTicketsByBooking(@PathVariable String bookingId) {
+    public ResponseEntity<ApiResponse<List<TicketDto>>> getTicketsByBooking(@PathVariable(name = "bookingId") String bookingId) {
         List<TicketDto> tickets = ticketService.getTicketsByBookingId(bookingId);
         return ResponseEntity.ok(ApiResponse.ok("Lấy danh sách vé thành công", tickets));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<TicketDto>> getTicketDetails(@PathVariable String id) {
+    public ResponseEntity<ApiResponse<TicketDto>> getTicketDetails(@PathVariable(name = "id") String id) {
         TicketDto ticket = ticketService.getTicketById(id);
         return ResponseEntity.ok(ApiResponse.ok("Lấy thông tin vé thành công", ticket));
     }
 
     @GetMapping("/{id}/download")
-    public ResponseEntity<byte[]> downloadPdf(@PathVariable String id) {
+    public ResponseEntity<byte[]> downloadPdf(@PathVariable(name = "id") String id) {
         byte[] pdfBytes = ticketService.downloadTicketPdf(id);
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=ticket-" + id + ".pdf")

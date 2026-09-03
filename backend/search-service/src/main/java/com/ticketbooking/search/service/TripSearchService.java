@@ -10,6 +10,8 @@ import com.ticketbooking.search.repository.TripSeatRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,11 +29,31 @@ public class TripSearchService {
     private final TripSeatRepository tripSeatRepository;
 
     @Transactional(readOnly = true)
-    @Cacheable(value = "trip_catalog", key = "'search:' + #departure + ':' + #arrival + ':' + #date")
+    @Cacheable(value = "trip_catalog", key = "'search:' + (#departure != null ? #departure : '') + ':' + (#arrival != null ? #arrival : '') + ':' + (#date != null ? #date.toString() : '')")
     public List<TripDto> searchTrips(String departure, String arrival, LocalDate date) {
         log.info("Fetching trips from Database (Cache Miss): dep={}, arr={}, date={}", departure, arrival, date);
-        LocalDateTime searchDate = (date != null) ? date.atStartOfDay() : null;
-        List<Trip> trips = tripRepository.searchTrips(departure, arrival, searchDate);
+        
+        Specification<Trip> spec = Specification.where(null);
+
+        if (departure != null && !departure.trim().isEmpty()) {
+            String depPattern = "%" + departure.trim().toLowerCase() + "%";
+            spec = spec.and((root, query, cb) ->
+                cb.like(cb.lower(root.get("departureLocation")), depPattern));
+        }
+
+        if (arrival != null && !arrival.trim().isEmpty()) {
+            String arrPattern = "%" + arrival.trim().toLowerCase() + "%";
+            spec = spec.and((root, query, cb) ->
+                cb.like(cb.lower(root.get("arrivalLocation")), arrPattern));
+        }
+
+        if (date != null) {
+            LocalDateTime startOfDay = date.atStartOfDay();
+            spec = spec.and((root, query, cb) ->
+                cb.greaterThanOrEqualTo(root.get("departureTime"), startOfDay));
+        }
+
+        List<Trip> trips = tripRepository.findAll(spec, Sort.by(Sort.Direction.ASC, "departureTime"));
 
         return trips.stream()
                 .map(this::mapToTripDto)

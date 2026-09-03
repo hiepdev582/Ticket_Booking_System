@@ -12,7 +12,7 @@ export default defineNuxtConfig({
   },
   app: {
     head: {
-      title: "Ticket Booking - Đặt Vé Xe Khách & Tàu Hỏa",
+      title: "Ticket Booking - Đặt Vé Xe Khách & Tàu Hỏa Thời Gian Thực",
       meta: [
         { charset: "utf-8" },
         { name: "viewport", content: "width=device-width, initial-scale=1" },
@@ -23,6 +23,7 @@ export default defineNuxtConfig({
         },
       ],
       link: [
+        { rel: "icon", type: "image/x-icon", href: "/favicon.ico" },
         { rel: "preconnect", href: "https://fonts.googleapis.com" },
         {
           rel: "preconnect",

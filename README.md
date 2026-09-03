@@ -338,7 +338,7 @@ ticket-booking-system/
    - **MinIO Console:** `http://localhost:9001` (User: `minioadmin` / Pass: `minioadmin`)
    - **Kafka UI:** `http://localhost:8085`
    - **Jaeger Tracing UI:** `http://localhost:16686`
-   - **Grafana Monitoring:** `http://localhost:3001` (Admin / Admin)
+   - **Grafana Monitoring:** `http://localhost:3001` (admin / admin)
 
 6. **Kịch bản kiểm thử Concurrency (Chống Double Booking với K6):**
    ```bash

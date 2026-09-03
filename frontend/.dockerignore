@@ -1,0 +1,9 @@
+node_modules
+.nuxt
+.output
+dist
+.nitro
+.cache
+.git
+.idea
+.vscode

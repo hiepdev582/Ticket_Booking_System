@@ -3,8 +3,8 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
       <!-- Logo -->
       <NuxtLink to="/" class="flex items-center gap-3 group">
-        <div class="w-10 h-10 rounded-xl gradient-bg flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-indigo-500/25 group-hover:scale-105 transition-transform">
-          🚆
+        <div class="w-10 h-10 rounded-xl overflow-hidden shadow-lg shadow-indigo-500/25 group-hover:scale-105 transition-transform flex items-center justify-center bg-slate-900 border border-slate-800">
+          <img src="/logo.png" alt="Logo" class="w-full h-full object-cover" />
         </div>
         <div>
           <span class="font-display font-bold text-xl tracking-tight text-white group-hover:text-indigo-400 transition-colors">

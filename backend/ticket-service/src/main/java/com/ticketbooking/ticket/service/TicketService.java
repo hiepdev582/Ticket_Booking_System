@@ -33,11 +33,15 @@ public class TicketService {
     @KafkaListener(topics = KafkaTopicConstants.ORDER_PAID_TOPIC, groupId = "ticket-service-group")
     @Transactional
     public void handleOrderPaid(OrderPaidEvent event) {
-        log.info("TicketService: Nhận OrderPaidEvent đơn #{}, tiến hành render PDF vé và upload MinIO", event.getBookingCode());
+        log.info("TicketService: Nhận OrderPaidEvent đơn #{}, tiến hành render PDF vé và upload MinIO",
+                event.getBookingCode());
 
-        List<String> seats = (event.getSeatNumbers() != null && !event.getSeatNumbers().isEmpty()) 
-                ? event.getSeatNumbers() 
-                : List.of("A01"); // Fallback nếu danh sách rỗng
+        if (event.getSeatNumbers() == null || event.getSeatNumbers().isEmpty()) {
+            log.warn("TicketService: Bỏ qua tạo vé do danh sách ghế rỗng cho đơn #{}", event.getBookingCode());
+            return;
+        }
+
+        List<String> seats = event.getSeatNumbers();
 
         List<Ticket> generatedTickets = new ArrayList<>();
 
@@ -46,15 +50,29 @@ public class TicketService {
             String ticketNumber = "TCK-" + System.currentTimeMillis() % 1000000 + "-" + seatNumber;
             String pdfStoragePath = String.format("tickets/%s/%s.pdf", event.getBookingId(), seatNumber);
 
+            String tripCodeVal = event.getTripCode() != null && !event.getTripCode().isBlank()
+                    ? event.getTripCode()
+                    : (event.getTripId() != null ? event.getTripId() : "TRIP-UNKNOWN");
+
+            String routeNameVal = event.getRouteName() != null && !event.getRouteName().isBlank()
+                    ? event.getRouteName()
+                    : "Hành trình xe khách / tàu hỏa";
+
+            LocalDateTime depTimeVal = event.getDepartureTime() != null
+                    ? event.getDepartureTime()
+                    : LocalDateTime.now().plusDays(1);
+
             Ticket ticket = Ticket.builder()
                     .id(ticketId)
                     .bookingId(event.getBookingId())
                     .ticketNumber(ticketNumber)
-                    .passengerName(event.getCustomerName() != null ? event.getCustomerName() : "Khách hàng")
+                    .passengerName(event.getCustomerName() != null && !event.getCustomerName().isBlank()
+                            ? event.getCustomerName()
+                            : "Khách hàng")
                     .passengerPhone(event.getCustomerPhone())
-                    .tripCode(event.getTripId() != null ? event.getTripId() : "TRIP-VN")
-                    .routeName("Hành trình chuyến đi")
-                    .departureTime(LocalDateTime.now().plusDays(1))
+                    .tripCode(tripCodeVal)
+                    .routeName(routeNameVal)
+                    .departureTime(depTimeVal)
                     .seatNumber(seatNumber)
                     .price(event.getAmount())
                     .pdfStoragePath(pdfStoragePath)
@@ -83,7 +101,8 @@ public class TicketService {
             kafkaTemplate.send(KafkaTopicConstants.TICKET_GENERATED_TOPIC, ticketId, generatedEvent);
         }
 
-        log.info("TicketService: Đã xuất thành công {} vé điện tử cho đơn hàng #{}", generatedTickets.size(), event.getBookingCode());
+        log.info("TicketService: Đã xuất thành công {} vé điện tử cho đơn hàng #{}", generatedTickets.size(),
+                event.getBookingCode());
     }
 
     @Transactional(readOnly = true)

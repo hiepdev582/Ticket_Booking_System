@@ -26,5 +26,8 @@ public class OrderPaidEvent implements Serializable {
     private List<String> seatNumbers;
     private BigDecimal amount;
     private String paymentMethod;
+    private String tripCode;
+    private String routeName;
+    private LocalDateTime departureTime;
     private LocalDateTime paidAt;
 }

@@ -248,7 +248,11 @@ public class BookingService {
         booking.setConfirmedAt(LocalDateTime.now());
         bookingRepository.save(booking);
 
-        List<TripSeat> seats = tripSeatRepository.findByTripIdAndSeatNumberIn(booking.getTripId(), event.getSeatNumbers());
+        List<String> seatNumbers = (event.getSeatNumbers() != null && !event.getSeatNumbers().isEmpty())
+                ? event.getSeatNumbers()
+                : booking.getItems().stream().map(BookingItem::getSeatNumber).collect(Collectors.toList());
+
+        List<TripSeat> seats = tripSeatRepository.findByTripIdAndSeatNumberIn(booking.getTripId(), seatNumbers);
         for (TripSeat seat : seats) {
             String holdKey = RedisKeyConstants.getHoldSeatKey(booking.getTripId(), seat.getSeatNumber());
             redisTemplate.delete(holdKey); // Xóa key giữ chỗ tạm thời
@@ -261,7 +265,7 @@ public class BookingService {
         // Broadcast trạng thái đã bán (BOOKED) qua WebSocket
         SeatUpdateMessage updateMessage = SeatUpdateMessage.builder()
                 .tripId(booking.getTripId())
-                .seatNumbers(event.getSeatNumbers())
+                .seatNumbers(seatNumbers)
                 .status(SeatStatus.BOOKED)
                 .eventType("SEAT_BOOKED")
                 .build();

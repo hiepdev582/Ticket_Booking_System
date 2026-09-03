@@ -28,7 +28,6 @@ public class PdfTicketGenerator {
 
             // Font styles
             Font titleFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 18, Color.DARK_GRAY);
-            Font headerFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12, Color.WHITE);
             Font labelFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 10, Color.GRAY);
             Font valueFont = FontFactory.getFont(FontFactory.HELVETICA, 11, Color.BLACK);
             Font valueBoldFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12, new Color(13, 110, 253));
@@ -36,7 +35,7 @@ public class PdfTicketGenerator {
             // Main Ticket Table (Boarding Pass Layout)
             PdfPTable mainTable = new PdfPTable(2);
             mainTable.setWidthPercentage(100);
-            mainTable.setWidths(new float[]{70f, 30f});
+            mainTable.setWidths(new float[] { 70f, 30f });
 
             // Left Section: Ticket Info
             PdfPCell leftCell = new PdfPCell();
@@ -50,21 +49,30 @@ public class PdfTicketGenerator {
             title.setAlignment(Element.ALIGN_LEFT);
             leftCell.addElement(title);
 
-            Paragraph ticketNo = new Paragraph("Ma ve: " + ticket.getTicketNumber() + " | Ma don: " + ticket.getBookingId().substring(0, 8), labelFont);
+            Paragraph ticketNo = new Paragraph(
+                    "Ma ve: " + ticket.getTicketNumber() + " | Ma don: " + ticket.getBookingId().substring(0, 8),
+                    labelFont);
             ticketNo.setSpacingAfter(10);
             leftCell.addElement(ticketNo);
 
             // Journey Info
             PdfPTable infoTable = new PdfPTable(2);
             infoTable.setWidthPercentage(100);
-            infoTable.setWidths(new float[]{50f, 50f});
+            infoTable.setWidths(new float[] { 50f, 50f });
 
-            addTableCell(infoTable, "HANH KHACH / PASSENGER", ticket.getPassengerName() != null ? ticket.getPassengerName() : "Hanh khach", labelFont, valueBoldFont);
-            addTableCell(infoTable, "SO DIEN THOAI / PHONE", ticket.getPassengerPhone() != null ? ticket.getPassengerPhone() : "N/A", labelFont, valueFont);
-            addTableCell(infoTable, "TUYEN DUONG / ROUTE", ticket.getRouteName() != null ? ticket.getRouteName() : "Tuyen xe", labelFont, valueBoldFont);
-            addTableCell(infoTable, "MA CHUYEN / TRIP CODE", ticket.getTripCode() != null ? ticket.getTripCode() : "TRIP-01", labelFont, valueFont);
-            
-            String depTime = ticket.getDepartureTime() != null ? ticket.getDepartureTime().format(DateTimeFormatter.ofPattern("HH:mm - dd/MM/yyyy")) : "N/A";
+            addTableCell(infoTable, "HANH KHACH / PASSENGER",
+                    ticket.getPassengerName() != null ? ticket.getPassengerName() : "Hanh khach", labelFont,
+                    valueBoldFont);
+            addTableCell(infoTable, "SO DIEN THOAI / PHONE",
+                    ticket.getPassengerPhone() != null ? ticket.getPassengerPhone() : "N/A", labelFont, valueFont);
+            addTableCell(infoTable, "TUYEN DUONG / ROUTE",
+                    ticket.getRouteName() != null ? ticket.getRouteName() : "Tuyen xe", labelFont, valueBoldFont);
+            addTableCell(infoTable, "MA CHUYEN / TRIP CODE",
+                    ticket.getTripCode() != null ? ticket.getTripCode() : "TRIP-01", labelFont, valueFont);
+
+            String depTime = ticket.getDepartureTime() != null
+                    ? ticket.getDepartureTime().format(DateTimeFormatter.ofPattern("HH:mm - dd/MM/yyyy"))
+                    : "N/A";
             addTableCell(infoTable, "GIO KHOI HANH / DEPARTURE", depTime, labelFont, valueBoldFont);
             addTableCell(infoTable, "SO GHE / SEAT NUMBER", ticket.getSeatNumber(), labelFont, valueBoldFont);
 
@@ -80,7 +88,8 @@ public class PdfTicketGenerator {
             rightCell.setBackgroundColor(new Color(248, 249, 250));
 
             // Embed QR Code
-            String qrContent = "TICKET:" + ticket.getTicketNumber() + "|TRIP:" + ticket.getTripCode() + "|SEAT:" + ticket.getSeatNumber();
+            String qrContent = "TICKET:" + ticket.getTicketNumber() + "|TRIP:" + ticket.getTripCode() + "|SEAT:"
+                    + ticket.getSeatNumber();
             byte[] qrImageBytes = qrCodeGenerator.generateQrCodeImage(qrContent, 140, 140);
             Image qrImage = Image.getInstance(qrImageBytes);
             qrImage.setAlignment(Element.ALIGN_CENTER);
@@ -92,7 +101,9 @@ public class PdfTicketGenerator {
             qrLabel.setSpacingBefore(5);
             rightCell.addElement(qrLabel);
 
-            Paragraph priceText = new Paragraph(ticket.getPrice() != null ? String.format("%,d VND", ticket.getPrice().longValue()) : "PAID", valueBoldFont);
+            Paragraph priceText = new Paragraph(
+                    ticket.getPrice() != null ? String.format("%,d VND", ticket.getPrice().longValue()) : "PAID",
+                    valueBoldFont);
             priceText.setAlignment(Element.ALIGN_CENTER);
             priceText.setSpacingBefore(8);
             rightCell.addElement(priceText);

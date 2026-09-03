@@ -36,6 +36,9 @@ export interface HeldBooking {
   status: string
   expiresAt: string
   remainingSeconds: number
+  customerName?: string
+  customerPhone?: string
+  customerEmail?: string
 }
 
 export const useBookingStore = defineStore('booking', {

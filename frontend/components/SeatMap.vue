@@ -7,14 +7,6 @@
       <div>
         <h3 class="text-lg font-bold text-white flex items-center gap-2">
           <span>💺 Sơ Đồ Chỗ Ngồi Trực Quan</span>
-          <span
-            class="text-xs px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center gap-1"
-          >
-            <span
-              class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"
-            ></span>
-            Realtime Sync
-          </span>
         </h3>
         <p class="text-xs text-slate-400 mt-1">
           Chọn ghế để giữ chỗ trong 5 phút. Tối đa 4 ghế/lượt.
@@ -26,26 +18,26 @@
         class="flex items-center bg-slate-900/90 p-1 rounded-xl border border-slate-800"
       >
         <button
-          @click="activeDeck = 1"
           :class="[
             'px-4 py-1.5 rounded-lg text-xs font-semibold transition-all',
             activeDeck === 1
               ? 'bg-indigo-600 text-white shadow-md'
               : 'text-slate-400 hover:text-white',
           ]"
+          @click="activeDeck = 1"
         >
-          Tầng Dưới (Deck 1)
+          Tầng Dưới
         </button>
         <button
-          @click="activeDeck = 2"
           :class="[
             'px-4 py-1.5 rounded-lg text-xs font-semibold transition-all',
             activeDeck === 2
               ? 'bg-indigo-600 text-white shadow-md'
               : 'text-slate-400 hover:text-white',
           ]"
+          @click="activeDeck = 2"
         >
-          Tầng Trên (Deck 2)
+          Tầng Trên
         </button>
       </div>
     </div>
@@ -114,8 +106,8 @@
           <div
             v-for="seat in filteredSeats"
             :key="seat.id"
-            :class="getSeatClasses(seat)"
             class="w-12 h-14 rounded-xl border flex flex-col items-center justify-between p-1.5 transition-all duration-200 select-none group"
+            :class="getSeatClasses(seat)"
             @click="handleSeatClick(seat)"
           >
             <div class="text-[9px] font-bold uppercase tracking-wider">

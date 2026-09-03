@@ -26,13 +26,13 @@ public class BookingController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<BookingDto>> getBookingDetails(@PathVariable String id) {
+    public ResponseEntity<ApiResponse<BookingDto>> getBookingDetails(@PathVariable(name = "id") String id) {
         BookingDto booking = bookingService.getBookingById(id);
         return ResponseEntity.ok(ApiResponse.ok("Lấy thông tin đơn đặt thành công", booking));
     }
 
     @PostMapping("/{id}/cancel")
-    public ResponseEntity<ApiResponse<Void>> cancelBooking(@PathVariable String id) {
+    public ResponseEntity<ApiResponse<Void>> cancelBooking(@PathVariable(name = "id") String id) {
         bookingService.releaseSeatsForBooking(id, "USER_CANCELLED");
         return ResponseEntity.ok(ApiResponse.ok("Hủy đơn giữ chỗ thành công", null));
     }

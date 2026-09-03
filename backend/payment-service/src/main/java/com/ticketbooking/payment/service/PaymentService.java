@@ -55,15 +55,29 @@ public class PaymentService {
 
         paymentTransactionRepository.save(transaction);
 
+        LocalDateTime depTime = null;
+        if (request.getDepartureTime() != null && !request.getDepartureTime().isBlank()) {
+            try {
+                depTime = LocalDateTime.parse(request.getDepartureTime());
+            } catch (Exception ignored) {}
+        }
+
         // 3. Phát sự kiện OrderPaidEvent vào Apache Kafka
         OrderPaidEvent event = OrderPaidEvent.builder()
                 .transactionId(transactionId)
                 .bookingId(request.getBookingId())
-                .bookingCode("BK-" + transactionId.substring(4))
+                .bookingCode(request.getBookingCode() != null && !request.getBookingCode().isBlank() ? request.getBookingCode() : "BK-" + transactionId.substring(4))
+                .tripId(request.getTripId())
+                .tripCode(request.getTripCode())
+                .routeName(request.getRouteName())
+                .departureTime(depTime)
+                .customerName(request.getCustomerName())
+                .customerPhone(request.getCustomerPhone())
+                .customerEmail(request.getCustomerEmail())
+                .seatNumbers(request.getSeatNumbers() != null ? request.getSeatNumbers() : Collections.emptyList())
                 .amount(request.getAmount())
                 .paymentMethod(transaction.getPaymentMethod())
                 .paidAt(transaction.getCreatedAt())
-                .seatNumbers(Collections.emptyList()) // Sẽ được enrich tại consumer
                 .build();
 
         kafkaTemplate.send(KafkaTopicConstants.ORDER_PAID_TOPIC, request.getBookingId(), event);

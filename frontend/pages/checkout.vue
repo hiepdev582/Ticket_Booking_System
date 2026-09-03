@@ -201,6 +201,15 @@ const handlePayment = async () => {
   try {
     const payload = {
       bookingId: bookingId,
+      bookingCode: bookingStore.heldBooking.bookingCode,
+      tripId: bookingStore.currentTrip?.id || bookingStore.heldBooking.tripId,
+      tripCode: bookingStore.currentTrip?.tripCode,
+      routeName: bookingStore.currentTrip?.routeName,
+      departureTime: bookingStore.currentTrip?.departureTime,
+      customerName: bookingStore.heldBooking.customerName,
+      customerPhone: bookingStore.heldBooking.customerPhone,
+      customerEmail: bookingStore.heldBooking.customerEmail,
+      seatNumbers: bookingStore.heldBooking.seatNumbers,
       paymentMethod: selectedMethod.value,
       amount: bookingStore.heldBooking.totalAmount,
       idempotencyKey: "IDEMP-" + bookingId,

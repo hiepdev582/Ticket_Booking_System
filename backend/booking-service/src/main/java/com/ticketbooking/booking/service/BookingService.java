@@ -63,7 +63,7 @@ public class BookingService {
             throw new AppException("Vui lòng chọn ít nhất 1 ghế!");
         }
 
-        log.info("Bắt đầu xử lý giữ ghế trip={}, seats={}, user={}", tripId, seatNumbers, userId);
+        log.info("Bắt đầu xử lý giữ ghế trip={}, seats={}, user={}, customer={}", tripId, seatNumbers, userId, request.getCustomerName());
 
         List<RLock> acquiredLocks = new ArrayList<>();
         try {
@@ -166,6 +166,9 @@ public class BookingService {
                     .bookingCode(bookingCode)
                     .tripId(tripId)
                     .userId(userId)
+                    .customerName(request.getCustomerName())
+                    .customerPhone(request.getCustomerPhone())
+                    .customerEmail(request.getCustomerEmail())
                     .seatNumbers(seatNumbers)
                     .totalAmount(totalAmount)
                     .status(BookingStatus.PENDING_PAYMENT)

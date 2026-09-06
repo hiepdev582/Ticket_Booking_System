@@ -20,6 +20,9 @@ public class HoldSeatResponse implements Serializable {
     private String bookingCode;
     private String tripId;
     private String userId;
+    private String customerName;
+    private String customerPhone;
+    private String customerEmail;
     private List<String> seatNumbers;
     private BigDecimal totalAmount;
     private BookingStatus status;

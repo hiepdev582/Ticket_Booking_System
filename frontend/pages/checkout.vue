@@ -224,7 +224,7 @@ const handlePayment = async () => {
     );
 
     if (res && res.success) {
-      bookingStore.stopCountdown();
+      bookingStore.clearHeldBooking();
       router.push(`/tickets/${bookingId}`);
     } else {
       alert("Thanh toán không thành công, vui lòng thử lại!");

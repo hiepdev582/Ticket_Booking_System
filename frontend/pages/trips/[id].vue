@@ -299,7 +299,11 @@ const handleHoldSeats = async () => {
     );
 
     if (res && res.success && res.data) {
-      bookingStore.setHeldBooking(res.data);
+      bookingStore.setHeldBooking({
+        ...res.data,
+        customerName: customerName.value || res.data.customerName,
+        customerPhone: customerPhone.value || res.data.customerPhone,
+      });
       router.push("/checkout");
     }
   } catch (error: any) {

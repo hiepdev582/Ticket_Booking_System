@@ -214,6 +214,7 @@ services:
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
       REDIS_HOST: redis
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      MANAGEMENT_OTLP_TRACING_ENDPOINT: http://jaeger:4318/v1/traces
     depends_on:
       postgres:
         condition: service_healthy
@@ -221,6 +222,8 @@ services:
         condition: service_healthy
       kafka:
         condition: service_healthy
+      jaeger:
+        condition: service_started
     networks:
       - ticket_network
 
@@ -238,6 +241,7 @@ services:
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
       REDIS_HOST: redis
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      MANAGEMENT_OTLP_TRACING_ENDPOINT: http://jaeger:4318/v1/traces
     depends_on:
       postgres:
         condition: service_healthy
@@ -245,6 +249,8 @@ services:
         condition: service_healthy
       kafka:
         condition: service_healthy
+      jaeger:
+        condition: service_started
     networks:
       - ticket_network
 
@@ -262,6 +268,7 @@ services:
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
       REDIS_HOST: redis
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      MANAGEMENT_OTLP_TRACING_ENDPOINT: http://jaeger:4318/v1/traces
     depends_on:
       postgres:
         condition: service_healthy
@@ -269,6 +276,8 @@ services:
         condition: service_healthy
       kafka:
         condition: service_healthy
+      jaeger:
+        condition: service_started
     networks:
       - ticket_network
 
@@ -289,6 +298,7 @@ services:
       MINIO_ENDPOINT: http://minio:9000
       MINIO_ACCESS_KEY: ${MINIO_ROOT_USER}
       MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD}
+      MANAGEMENT_OTLP_TRACING_ENDPOINT: http://jaeger:4318/v1/traces
     depends_on:
       postgres:
         condition: service_healthy
@@ -298,6 +308,8 @@ services:
         condition: service_healthy
       minio:
         condition: service_healthy
+      jaeger:
+        condition: service_started
     networks:
       - ticket_network
 
@@ -316,11 +328,13 @@ services:
       PAYMENT_SERVICE_URI: http://payment-service:8083
       TICKET_SERVICE_URI: http://ticket-service:8084
       WEBSOCKET_SERVICE_URI: ws://booking-service:8081
+      MANAGEMENT_OTLP_TRACING_ENDPOINT: http://jaeger:4318/v1/traces
     depends_on:
       - search-service
       - booking-service
       - payment-service
       - ticket-service
+      - jaeger
     networks:
       - ticket_network
 
